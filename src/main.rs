@@ -32,6 +32,13 @@ fn main() -> ExitCode {
     }
 
     // ffmpeg風の簡易互換: -i in.wav [-ar rate] [-ac channels] out.wav
+    //
+    // 重要: 本家ffmpegが持つ大半のフラグ(-ss/-t/-c:a/-c:v/-b:a/-b:v/-y等)は
+    // 未対応。これらを黙って無視して「成功」を返すと、圧縮コーデック指定や
+    // トリミング指定が効かないまま無圧縮WAVを書き出してしまい、利用者が
+    // 気づけない事故につながる(実機検証で確認済みの実際の不具合)。
+    // そのため、認識できないフラグは明示的にエラーとして拒否する。
+    const KNOWN_VALUE_FLAGS: &[&str] = &["-i", "-ar", "-ac"];
     let mut input = None;
     let mut output = None;
     let mut target_rate = None;
@@ -43,6 +50,13 @@ fn main() -> ExitCode {
             "-i" => { i += 1; input = args.get(i).map(PathBuf::from); }
             "-ar" => { i += 1; target_rate = args.get(i).and_then(|s| s.parse().ok()); }
             "-ac" => { i += 1; target_channels = args.get(i).and_then(|s| s.parse().ok()); }
+            other if other.starts_with('-') && !KNOWN_VALUE_FLAGS.contains(&other) => {
+                eprintln!(
+                    "エラー: 未対応のオプション '{other}' です。rs-ffmpegはWAVのprobe/サンプルレート変換/チャンネル変換のみ対応しています(コーデック指定・トリミング・ビットレート指定等は未実装)。 / \
+                     Error: unsupported option '{other}'. rs-ffmpeg only supports WAV probing, sample-rate conversion, and channel conversion — codec selection, trimming, and bitrate flags are not implemented."
+                );
+                return ExitCode::FAILURE;
+            }
             other => { output = Some(PathBuf::from(other)); }
         }
         i += 1;
@@ -52,6 +66,17 @@ fn main() -> ExitCode {
         print_usage();
         return ExitCode::FAILURE;
     };
+
+    for path in [&input, &output] {
+        if path.extension().and_then(|e| e.to_str()).map(|e| e.to_ascii_lowercase()) != Some("wav".to_string()) {
+            eprintln!(
+                "エラー: '{}' — rs-ffmpegは非圧縮WAVのみ対応です(.wav以外は不可)。 / \
+                 Error: '{}' — rs-ffmpeg only supports uncompressed WAV (extension must be .wav).",
+                path.display(), path.display()
+            );
+            return ExitCode::FAILURE;
+        }
+    }
 
     let data = match wav::read(&input) {
         Ok(d) => d,
