@@ -34,6 +34,15 @@ rs-ffmpeg -i input.wav -ar 22050 -ac 1 output.wav
 ビットレート制御やトリミング等、本家`ffmpeg`/`ffprobe`が持つその他の
 機能は、いずれも未対応です。
 
+## Install (Windows) / インストール(Windows)
+
+```powershell
+.\install.ps1
+```
+
+Builds the release binary and adds it to your user PATH.
+リリースビルドを行い、ユーザーPATHへ追加します。
+
 ## Development / 開発
 
 ```bash
