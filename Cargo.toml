@@ -1,0 +1,13 @@
+[package]
+name = "rs-ffmpeg"
+version = "0.1.0"
+edition = "2021"
+description = "Rust-native tribute/reimplementation of FFmpeg. Early WIP: WAV probing and PCM format conversion only."
+license = "MIT"
+repository = "https://github.com/aon-co-jp/rs-FFmpeg"
+
+[[bin]]
+name = "rs-ffmpeg"
+path = "src/main.rs"
+
+[dependencies]
