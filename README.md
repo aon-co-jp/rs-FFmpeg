@@ -53,3 +53,7 @@ cargo build --release
 ## License
 
 MIT
+
+---
+
+作者 / Author: 石塚正浩（MASAHIRO ISHIZUKA） (https://github.com/aon-co-jp)
