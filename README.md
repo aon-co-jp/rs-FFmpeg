@@ -1,3 +1,5 @@
+> Latest translations / 翻訳の最新版: [0-LATEST-TRANSLATIONS.md](0-LATEST-TRANSLATIONS.md)
+
 # rs-FFmpeg
 
 A Rust-native tribute to [FFmpeg](https://ffmpeg.org/).
